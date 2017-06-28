@@ -1,0 +1,9 @@
+override_dh_auto_install:
+	dh_auto_install
+	mv $(CURDIR)/debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/libuvc.so \
+		$(CURDIR)/debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/libuvc.so.VERSION
+	#ln -sf libuvc.so.VERSION \
+        #       $(CURDIR)/debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/libuvc.so
+	# ln -sf libuvc.so.VERSION \
+        #       $(CURDIR)/debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/libuvc.so.0
+

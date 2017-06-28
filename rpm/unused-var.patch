@@ -1,0 +1,52 @@
+--- libuvc-0.0.5/src/stream.c.old	2016-11-01 23:01:54.422939067 +0000
++++ libuvc-0.0.5/src/stream.c	2016-11-01 23:08:43.736318242 +0000
+@@ -491,7 +485,6 @@
+   size_t header_len;
+   uint8_t header_info;
+   size_t data_len;
+-  struct libusb_iso_packet_descriptor *pkt;
+ 
+   /* magic numbers for identifying header packets from some iSight cameras */
+   static uint8_t isight_tag[] = {
+@@ -1040,7 +1065,6 @@
+  * must be called with stream cb lock held!
+  */
+ void _uvc_populate_frame(uvc_stream_handle_t *strmh) {
+-  size_t alloc_size = strmh->cur_ctrl.dwMaxVideoFrameSize;
+   uvc_frame_t *frame = &strmh->frame;
+   uvc_frame_desc_t *frame_desc;
+ 
+--- libuvc-0.0.5/src/device.c.old	2016-11-01 23:01:54.274944716 +0000
++++ libuvc-0.0.5/src/device.c	2016-11-01 23:08:24.229062570 +0000
+@@ -561,7 +561,6 @@
+ uvc_error_t uvc_get_device_list(
+     uvc_context_t *ctx,
+     uvc_device_t ***list) {
+-  uvc_error_t ret;
+   struct libusb_device **usb_dev_list;
+   struct libusb_device *usb_dev;
+   int num_usb_devices;
+@@ -571,7 +570,6 @@
+ 
+   /* per device */
+   int dev_idx;
+-  struct libusb_device_handle *usb_devh;
+   struct libusb_config_descriptor *config;
+   struct libusb_device_descriptor desc;
+   uint8_t got_interface;
+@@ -600,7 +598,6 @@
+   dev_idx = -1;
+ 
+   while ((usb_dev = usb_dev_list[++dev_idx]) != NULL) {
+-    usb_devh = NULL;
+     got_interface = 0;
+ 
+     if (libusb_get_config_descriptor(usb_dev, 0, &config) != 0)
+@@ -1082,7 +1105,6 @@
+ 					 uvc_device_info_t *info,
+ 					 const unsigned char *block, size_t block_size) {
+   uvc_selector_unit_t *unit;
+-  size_t i;
+ 
+   UVC_ENTER();
+ 

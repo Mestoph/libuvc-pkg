@@ -1,0 +1,13 @@
+Fix compiler warning about mismatched types
+
+--- libuvc-0.0.5/src/frame-mjpeg.c.old	2016-11-09 23:50:22.026348000 +0000
++++ libuvc-0.0.5/src/frame-mjpeg.c	2016-10-31 23:47:20.067176486 +0000
+@@ -170,7 +170,7 @@
+ 
+   lines_read = 0;
+   while (dinfo.output_scanline < dinfo.output_height) {
+-    unsigned char *buffer[1] = { out->data + lines_read * out->step };
++    unsigned char *buffer[1] = {( unsigned char*) out->data + lines_read * out->step };
+     int num_scanlines;
+ 
+     num_scanlines = jpeg_read_scanlines(&dinfo, buffer, 1);

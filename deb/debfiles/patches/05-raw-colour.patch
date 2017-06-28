@@ -1,0 +1,79 @@
+Add support for raw colour images and warnings for unhandled stream
+types
+
+--- libuvc-0.0.5/include/libuvc/libuvc.h.old	2016-07-11 17:56:24.000000000 +0100
++++ libuvc-0.0.5/include/libuvc/libuvc.h	2016-11-01 22:11:28.746303427 +0000
+@@ -69,7 +69,13 @@
+   /** Motion-JPEG (or JPEG) encoded images */
+   UVC_FRAME_FORMAT_MJPEG,
+   UVC_FRAME_FORMAT_GRAY8,
++  /* Raw colour mosaic images */
+   UVC_FRAME_FORMAT_BY8,
++  UVC_FRAME_FORMAT_BA81,
++  UVC_FRAME_FORMAT_SGRBG8,
++  UVC_FRAME_FORMAT_SGBRG8,
++  UVC_FRAME_FORMAT_SRGGB8,
++  UVC_FRAME_FORMAT_SBGGR8,
+   /** Number of formats understood */
+   UVC_FRAME_FORMAT_COUNT,
+ };
+--- libuvc-0.0.5/src/device.c.old	2016-07-11 17:56:24.000000000 +0100
++++ libuvc-0.0.5/src/device.c	2016-11-01 22:57:22.578317120 +0000
+@@ -1444,6 +1470,12 @@
+   case UVC_VS_INPUT_HEADER:
+     ret = uvc_parse_vs_input_header(stream_if, block, block_size);
+     break;
++  case UVC_VS_OUTPUT_HEADER:
++    fprintf ( stderr, "unsupported descriptor subtype VS_OUTPUT_HEADER\n" );
++    break;
++  case UVC_VS_STILL_IMAGE_FRAME:
++    fprintf ( stderr, "unsupported descriptor subtype VS_STILL_IMAGE_FRAME\n" );
++    break;
+   case UVC_VS_FORMAT_UNCOMPRESSED:
+     ret = uvc_parse_vs_format_uncompressed(stream_if, block, block_size);
+     break;
+@@ -1454,12 +1486,24 @@
+   case UVC_VS_FRAME_MJPEG:
+     ret = uvc_parse_vs_frame_uncompressed(stream_if, block, block_size);
+     break;
++  case UVC_VS_FORMAT_MPEG2TS:
++    fprintf ( stderr, "unsupported descriptor subtype VS_FORMAT_MPEG2TS\n" );
++    break;
++  case UVC_VS_FORMAT_DV:
++    fprintf ( stderr, "unsupported descriptor subtype VS_FORMAT_DV\n" );
++    break;
++  case UVC_VS_COLORFORMAT:
++    fprintf ( stderr, "unsupported descriptor subtype VS_COLORFORMAT\n" );
++    break;
+   case UVC_VS_FORMAT_FRAME_BASED:
+     ret = uvc_parse_vs_frame_format ( stream_if, block, block_size );
+     break;
+   case UVC_VS_FRAME_FRAME_BASED:
+     ret = uvc_parse_vs_frame_frame ( stream_if, block, block_size );
+     break;
++  case UVC_VS_FORMAT_STREAM_BASED:
++    fprintf ( stderr, "unsupported descriptor subtype VS_FORMAT_STREAM_BASED\n" );
++    break;
+   default:
+     /** @todo handle JPEG and maybe still frames or even DV... */
+     fprintf ( stderr, "unsupported descriptor subtype: %d\n",
+--- libuvc-0.0.5/src/stream.c.old	2016-07-11 17:56:24.000000000 +0100
++++ libuvc-0.0.5/src/stream.c	2016-11-01 00:15:55.089661059 +0000
+@@ -110,7 +110,16 @@
+       {'Y',  '8',  '0',  '0', 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71})
+     FMT(UVC_FRAME_FORMAT_BY8,
+       {'B',  'Y',  '8',  ' ', 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71})
+-
++    FMT(UVC_FRAME_FORMAT_BA81,
++      {'B',  'A',  '8',  '1', 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71})
++    FMT(UVC_FRAME_FORMAT_SGRBG8,
++      {'G',  'R',  'B',  'G', 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71})
++    FMT(UVC_FRAME_FORMAT_SGBRG8,
++      {'G',  'B',  'R',  'G', 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71})
++    FMT(UVC_FRAME_FORMAT_SRGGB8,
++      {'R',  'G',  'G',  'B', 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71})
++    FMT(UVC_FRAME_FORMAT_SBGGR8,
++      {'B',  'G',  'G',  'R', 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71})
+     ABS_FMT(UVC_FRAME_FORMAT_COMPRESSED, 1,
+       {UVC_FRAME_FORMAT_MJPEG})
+     FMT(UVC_FRAME_FORMAT_MJPEG,

@@ -1,0 +1,46 @@
+--- libuvc-0.0.5/src/stream.c.old	2016-11-01 23:17:19.979589453 +0000
++++ libuvc-0.0.5/src/stream.c	2016-11-01 23:08:43.736318242 +0000
+@@ -377,16 +377,17 @@
+ 
+         uint32_t *interval;
+ 
++        ctrl->bInterfaceNumber = stream_if->bInterfaceNumber;
++        UVC_DEBUG("claiming streaming interface %d", stream_if->bInterfaceNumber );
++        uvc_claim_if(devh, ctrl->bInterfaceNumber);
++        /* get the max values */
++        uvc_query_stream_ctrl( devh, ctrl, 1, UVC_GET_MAX);
++
+         if (frame->intervals) {
+           for (interval = frame->intervals; *interval; ++interval) {
+             // allow a fps rate of zero to mean "accept first rate available"
+             if (10000000 / *interval == (unsigned int) fps || fps == 0) {
+ 
+-              /* get the max values -- we need the interface number to be able
+-                 to do this */
+-              ctrl->bInterfaceNumber = stream_if->bInterfaceNumber;
+-              uvc_query_stream_ctrl( devh, ctrl, 1, UVC_GET_MAX);
+-
+               ctrl->bmHint = (1 << 0); /* don't negotiate interval */
+               ctrl->bFormatIndex = format->bFormatIndex;
+               ctrl->bFrameIndex = frame->bFrameIndex;
+@@ -404,11 +405,6 @@
+               && !(interval_offset
+                    && (interval_offset % frame->dwFrameIntervalStep))) {
+ 
+-            /* get the max values -- we need the interface number to be able
+-               to do this */
+-            ctrl->bInterfaceNumber = stream_if->bInterfaceNumber;
+-            uvc_query_stream_ctrl( devh, ctrl, 1, UVC_GET_MAX);
+-
+             ctrl->bmHint = (1 << 0);
+             ctrl->bFormatIndex = format->bFormatIndex;
+             ctrl->bFrameIndex = frame->bFrameIndex;
+@@ -437,8 +433,6 @@
+     uvc_device_handle_t *devh,
+     uvc_stream_ctrl_t *ctrl) {
+  
+-  uvc_claim_if(devh, ctrl->bInterfaceNumber);
+-
+   uvc_query_stream_ctrl(
+       devh, ctrl, 1, UVC_SET_CUR
+   );

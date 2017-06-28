@@ -1,0 +1,42 @@
+Add pkg-config file
+
+--- libuvc-0.0.5/CMakeLists.txt.old	2016-07-11 17:56:24.000000000 +0100
++++ libuvc-0.0.5/CMakeLists.txt	2016-11-05 23:10:21.964026443 +0000
+@@ -16,6 +16,10 @@
+ set(libuvc_VERSION_PATCH 5)
+ set(libuvc_VERSION ${libuvc_VERSION_MAJOR}.${libuvc_VERSION_MINOR}.${libuvc_VERSION_PATCH})
+ 
++set(libuvc_DESCRIPTION "A user-space interface for UVC-compliant cameras.")
++set(libuvc_URL "https://github.com/ktossell/libuvc")
++
++
+ find_package(PkgConfig)
+ pkg_check_modules(LIBUSB libusb-1.0)
+ 
+@@ -102,3 +106,14 @@
+ 
+ install(EXPORT libuvcTargets
+   DESTINATION "${INSTALL_CMAKE_DIR}")
++
++# pkg-config
++configure_file(
++  "${CMAKE_CURRENT_SOURCE_DIR}/libuvc.pc.cmake.in"
++  "${CMAKE_CURRENT_BINARY_DIR}/libuvc.pc"
++  @ONLY
++)
++install(FILES
++  "${CMAKE_CURRENT_BINARY_DIR}/libuvc.pc"
++  DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig"
++)
+--- libuvc-0.0.5/libuvc.pc.cmake.in	1970-01-01 01:00:00.000000000 +0100
++++ libuvc-0.0.5/libuvc.pc.cmake.in	2016-11-05 23:11:43.247858211 +0000
+@@ -0,0 +1,9 @@
++libdir=@CONF_LIBRARY_DIR@
++includedir=@CONF_INCLUDE_DIR@
++
++Name: libuvc
++Description: @libuvc_DESCRIPTION@
++URL: @libuvc_URL@
++Version: @libuvc_VERSION@
++Libs: -L${libdir} -luvc
++Cflags: -I${includedir}

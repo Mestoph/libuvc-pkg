@@ -1,0 +1,18 @@
+--- libuvc-0.0.5/src/stream.c.old	2016-11-02 12:05:02.010906647 +0000
++++ libuvc-0.0.5/src/stream.c	2016-11-02 12:05:33.972678015 +0000
+@@ -990,6 +990,15 @@
+     }
+   }
+ 
++  if ( ret != UVC_SUCCESS && transfer_id > 0 ) {
++    for ( ; transfer_id < LIBUVC_NUM_TRANSFER_BUFS; transfer_id++) {
++      free ( strmh->transfers[transfer_id]->buffer );
++      libusb_free_transfer ( strmh->transfers[transfer_id]);
++      strmh->transfers[transfer_id] = 0;
++    }
++    ret = UVC_SUCCESS;
++  }
++
+   UVC_EXIT(ret);
+   return ret;
+ fail:

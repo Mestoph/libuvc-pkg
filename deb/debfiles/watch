@@ -1,0 +1,3 @@
+version=3
+opts=filenamemangle=s/.+\/v?(\d\S+)\.tar\.gz/libuvc-$1\.tar\.gz/ \
+  https://github.com/ktossell/libuvc/tags .*/?(\d{2}\.\d.\d)\.tar\.gz
