@@ -1,0 +1,7 @@
+# source archives
+libuvc-*.tar.gz
+libuvc*orig.tar.gz
+*.deb
+*.debian.tar.xz
+*.dsc
+*.changes
