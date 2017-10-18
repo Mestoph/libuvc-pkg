@@ -1,5 +1,5 @@
 Name:           libuvc
-Version:        0.0.5
+Version:        0.0.6
 Release:        1
 Summary:        Userspace UVC driver library
 License:        BSD-2-clause
@@ -87,6 +87,6 @@ sed -i '/libdir=/s!=.*$!=%{_libdir}!' %{buildroot}%{_libdir}/pkgconfig/libuvc.pc
 %{_libdir}/*.a
 
 %changelog
-* Tue Nov 15 2016 James Fidell <james@openastroproject.org> - 0.0.5-1
+* Tue Nov 15 2016 James Fidell <james@openastroproject.org> - 0.0.6-1
 - Initial RPM release
 
