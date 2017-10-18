@@ -10,9 +10,8 @@ debdir=debian
 debsrc=$debdir/source
 quiltconf=$HOME/.quiltrc-dpkg
 
-mkdir $srcdir
+tar zxf libuvc-$version.tar.gz
 cd $srcdir
-tar zxf ../libuvc-$version.tar.gz
 dh_make -y -l -f ../libuvc-$version.tar.gz
 
 cp ../debfiles/control $debdir
