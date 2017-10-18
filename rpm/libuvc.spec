@@ -14,19 +14,6 @@ BuildRequires:  cmake
 BuildRequires:  gcc-c++
 BuildRequires:  libstdc++-devel
 Source:         libuvc-%{version}.tar.gz
-Patch0:         raw-colour.patch
-Patch1:         unused-var.patch
-Patch2:         claim-check.patch
-Patch3:         claim-before-query.patch
-Patch4:         new-tis-camera.patch
-Patch5:         orphan-cleanup.patch
-Patch6:         uninitialised.patch
-Patch7:         error-code.patch
-Patch8:         transfer-cleanup.patch
-Patch9:         pkg-config-file.patch
-Patch10:        build-static-dynamic.patch
-Patch11:        fix-type-error.patch
-Patch12:        add-grey16.patch
 
 %description
 libuvc is a user-space driver library for UVC cameras.  It also supports
@@ -46,19 +33,6 @@ developing applications that use %{name}.
 
 %prep
 %setup -q
-%patch0 -p1
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
-%patch5 -p1
-%patch6 -p1
-%patch7 -p1
-%patch8 -p1
-%patch9 -p1
-%patch10 -p1
-%patch11 -p1
-%patch12 -p1
 
 %build
 %cmake . -DCMAKE_INSTALL_LIBDIR=/usr/lib64
