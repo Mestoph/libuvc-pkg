@@ -1,5 +1,5 @@
-libuvc (0.0.6-1openastro1) xenial; urgency=medium
+libuvc (0.0.6-2openastro1) xenial; urgency=medium
 
   * Initial release
 
- -- James Fidell <james@openastroproject.org>  Wed, 02 Nov 2016 23:43:05 +0000
+ -- James Fidell <james@openastroproject.org>  Sun, 17 Dec 2017 12:06:03 +0000
