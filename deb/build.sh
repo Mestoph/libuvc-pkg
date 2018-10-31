@@ -12,7 +12,13 @@ quiltconf=$HOME/.quiltrc-dpkg
 
 tar zxf libuvc-$version.tar.gz
 cd $srcdir
-dh_make -y -l -f ../libuvc-$version.tar.gz
+YFLAG=-y
+dh_make -v | fgrep -q '1998-2011'
+if [ $? -eq 0 ]
+then
+  YFLAG=''
+fi
+dh_make $YFLAG -l -f ../libuvc-$version.tar.gz
 
 cp ../debfiles/control $debdir
 cp ../debfiles/copyright $debdir
