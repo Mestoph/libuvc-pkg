@@ -25,21 +25,29 @@ cp ../debfiles/copyright $debdir
 cp ../debfiles/changelog $debdir
 cp ../debfiles/watch $debdir
 cp ../debfiles/libuvc.dirs $debdir
-cp ../debfiles/libuvc.links $debdir
+#cp ../debfiles/libuvc.links $debdir
 cp ../debfiles/libuvc.install $debdir
 cp ../debfiles/libuvc-dev.dirs $debdir
 cp ../debfiles/libuvc-dev.install $debdir
-cp ../debfiles/libuvc-dev.links $debdir
+#cp ../debfiles/libuvc-dev.links $debdir
 cp ../debfiles/libuvc.symbols $debdir
 
 echo 9 >> $debdir/compat
 
-sed -e '/^.*[ |]configure./a\
-        ldconfig' < $debdir/postinst.ex > $debdir/postinst
-chmod +x $debdir/postinst
-sed -e '/^.*[ |]remove./a\
-        ldconfig' < $debdir/postrm.ex > $debdir/postrm
-chmod +x $debdir/postrm
+if [ -f $debdir/postinst.ex ]
+then
+	sed -e '/^.*[ |]configure./a\
+        	ldconfig' < $debdir/postinst.ex > $debdir/postinst
+	chmod +x $debdir/postinst
+fi
+
+if [ -f $debdir/postrm.ex ]
+then
+	sed -e '/^.*[ |]remove./a\
+        	ldconfig' < $debdir/postrm.ex > $debdir/postrm
+	chmod +x $debdir/postrm
+fi
+
 echo "3.0 (quilt)" > $debsrc/format
 
 cp $debdir/rules $debdir/rules.ex
@@ -47,11 +55,11 @@ sed -e '/^DEB_BUILD_MAINT_OPTIONS =/s/^#//' \
   -e '/^DEB_BUILD_MAINT_OPTIONS =/s/+all/+bindnow/' < $debdir/rules.ex > $debdir/rules
 sed -e "s/VERSION/$version/g" < ../debfiles/rules.overrides >> $debdir/rules
 
-rm $debdir/README.Debian
-rm $debdir/README.source
-rm $debdir/libuvc-docs.docs
-rm $debdir/libuvc1.*
-rm $debdir/*.[Ee][Xx]
+rm -f $debdir/README.Debian
+rm -f $debdir/README.source
+rm -f $debdir/libuvc-docs.docs
+rm -f $debdir/libuvc1.*
+rm -f $debdir/*.[Ee][Xx]
 
 export QUILT_PATCHES="debian/patches"
 export QUILT_PATCH_OPTS="--reject-format=unified"
@@ -76,4 +84,4 @@ dpkg-buildpackage -us -uc
 
 echo "Now run:"
 echo
-echo "    lintian -i -I --show-overrides libuvc_$version-1openastro1_amd64.changes"
+echo "    lintian -i -I --show-overrides libuvc_$version-1openastro2_amd64.changes"

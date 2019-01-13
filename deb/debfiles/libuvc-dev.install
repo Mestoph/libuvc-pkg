@@ -2,3 +2,4 @@ usr/include/libuvc/*
 usr/lib/*/pkgconfig/*
 usr/lib/cmake/libuvc/*
 usr/lib/*/libuvc.a
+usr/lib/*/libuvc.so
