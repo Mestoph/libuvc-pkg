@@ -70,4 +70,4 @@ dpkg-buildpackage -us -uc
 
 echo "Now run:"
 echo
-echo "    lintian -i -I --show-overrides libuvc_$version-1openastro2_amd64.changes"
+echo "    lintian -i -I --show-overrides libuvc_$version-2openastro3_amd64.changes"
