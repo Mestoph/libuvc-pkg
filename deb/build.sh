@@ -27,6 +27,7 @@ cp ../debfiles/watch $debdir
 cp ../debfiles/libuvc.dirs $debdir
 #cp ../debfiles/libuvc.links $debdir
 cp ../debfiles/libuvc.install $debdir
+cp ../debfiles/libuvc.triggers $debdir
 cp ../debfiles/libuvc-dev.dirs $debdir
 cp ../debfiles/libuvc-dev.install $debdir
 #cp ../debfiles/libuvc-dev.links $debdir
