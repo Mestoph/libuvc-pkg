@@ -1,7 +1,7 @@
 Source: libuvc
 Priority: optional
 Maintainer: James Fidell <james@openastroproject.org>
-Build-Depends: debhelper (>=9), libusb-1.0-0-dev, pkg-config, cmake
+Build-Depends: debhelper (>=10), libusb-1.0-0-dev, pkg-config, cmake
 Standards-Version: 3.9.7
 Section: libs
 Homepage: https://github.com/ktossell/libuvc

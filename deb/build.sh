@@ -32,7 +32,7 @@ cp ../debfiles/libuvc-dev.install $debdir
 #cp ../debfiles/libuvc-dev.links $debdir
 cp ../debfiles/libuvc.symbols $debdir
 
-echo 9 >> $debdir/compat
+echo 10 > $debdir/compat
 
 if [ -f $debdir/postinst.ex ]
 then
