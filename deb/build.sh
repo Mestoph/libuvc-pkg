@@ -34,20 +34,6 @@ cp ../debfiles/libuvc.symbols $debdir
 
 echo 10 > $debdir/compat
 
-if [ -f $debdir/postinst.ex ]
-then
-	sed -e '/^.*[ |]configure./a\
-        	ldconfig' < $debdir/postinst.ex > $debdir/postinst
-	chmod +x $debdir/postinst
-fi
-
-if [ -f $debdir/postrm.ex ]
-then
-	sed -e '/^.*[ |]remove./a\
-        	ldconfig' < $debdir/postrm.ex > $debdir/postrm
-	chmod +x $debdir/postrm
-fi
-
 echo "3.0 (quilt)" > $debsrc/format
 
 cp $debdir/rules $debdir/rules.ex
