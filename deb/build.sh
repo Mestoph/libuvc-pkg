@@ -10,6 +10,20 @@ debdir=debian
 debsrc=$debdir/source
 quiltconf=$HOME/.quiltrc-dpkg
 
+debversion=`cat /etc/debian_version`
+case $debversion in
+  jessie/sid)
+    compatversion=9
+    ;;
+  stretch/sid)
+    compatversion=9
+    ;;
+  *)
+    compatversion=10
+    ;;
+esac
+echo $compatversion > debfiles/compat
+
 tar zxf libuvc-$version.tar.gz
 cd $srcdir
 YFLAG=-y
@@ -20,9 +34,10 @@ then
 fi
 dh_make $YFLAG -l -f ../libuvc-$version.tar.gz
 
-cp ../debfiles/control $debdir
+sed -e "s/@@COMPAT@@/$compatversion/" < ../debfiles/control > $debdir/control
 cp ../debfiles/copyright $debdir
 cp ../debfiles/changelog $debdir
+cp ../debfiles/compat $debdir
 cp ../debfiles/watch $debdir
 cp ../debfiles/libuvc.dirs $debdir
 #cp ../debfiles/libuvc.links $debdir
@@ -32,8 +47,6 @@ cp ../debfiles/libuvc-dev.dirs $debdir
 cp ../debfiles/libuvc-dev.install $debdir
 #cp ../debfiles/libuvc-dev.links $debdir
 cp ../debfiles/libuvc.symbols $debdir
-
-echo 10 > $debdir/compat
 
 echo "3.0 (quilt)" > $debsrc/format
 
