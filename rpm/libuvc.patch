@@ -1,0 +1,142 @@
+From de41de192a0b8c43d237ad2cc1138d43baa62e93 Mon Sep 17 00:00:00 2001
+From: Grzegorz Bielski <grzegbie@gmail.com>
+Date: Tue, 27 Nov 2018 11:39:24 +0100
+Subject: [PATCH 1/2] fixed deadlock in uvc_stream_get_frame
+
+in case of error (timeout) returned by pthread_cond_timedwait() mutex was not
+released
+---
+ src/stream.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git libuvc-0.0.6/src/stream.c~ libuvc-0.0.6/src/stream.c
+index d309628..edb5e38 100644
+--- libuvc-0.0.6/src/stream.c~
++++ libuvc-0.0.6/src/stream.c
+@@ -1167,6 +1167,9 @@ uvc_error_t uvc_stream_get_frame(uvc_stream_handle_t *strmh,
+       int err = pthread_cond_timedwait(&strmh->cb_cond, &strmh->cb_mutex, &ts);
+ 
+       //TODO: How should we handle EINVAL?
++      if (err) {
++        pthread_mutex_unlock(&strmh->cb_mutex);
++      }
+       switch(err){
+       case EINVAL:
+           *frame = NULL;
+
+From 4b6aa9f3c8b38231e21dabbf7722ce8ef32ba7b3 Mon Sep 17 00:00:00 2001
+From: Grzegorz Bielski <grzegbie@gmail.com>
+Date: Sat, 16 Feb 2019 23:20:24 +0100
+Subject: [PATCH 2/2] handling of device removal - return UVC_ERROR_NO_DEVICE
+
+do not call libusb_free_transfer in uvc_strop_streaming - cancel is
+asynchronous operation
+---
+ include/libuvc/libuvc_internal.h |  2 ++
+ src/stream.c                     | 24 +++++++++++++++++++-----
+ 2 files changed, 21 insertions(+), 5 deletions(-)
+
+diff --git libuvc-0.0.6/include/libuvc/libuvc_internal.h~ libuvc-0.0.6/include/libuvc/libuvc_internal.h
+index 829b294..8b9ccc9 100644
+--- libuvc-0.0.6/include/libuvc/libuvc_internal.h~
++++ libuvc-0.0.6/include/libuvc/libuvc_internal.h
+@@ -227,6 +227,8 @@ struct uvc_stream_handle {
+   uint8_t running;
+   /** Current control block */
+   struct uvc_stream_ctrl cur_ctrl;
++  /** status of last transfer */
++  enum libusb_transfer_status transfer_status;
+ 
+   /* listeners may only access hold*, and only when holding a
+    * lock on cb_mutex (probably signaled with cb_cond) */
+diff --git libuvc-0.0.6/src/stream.c~ libuvc-0.0.6/src/stream.c
+index edb5e38..c1df171 100644
+--- libuvc-0.0.6/src/stream.c~
++++ libuvc-0.0.6/src/stream.c
+@@ -616,6 +616,8 @@ void LIBUSB_CALL _uvc_stream_callback(struct libusb_transfer *transfer) {
+   case LIBUSB_TRANSFER_ERROR:
+   case LIBUSB_TRANSFER_NO_DEVICE: {
+     int i;
++
++    strmh->transfer_status = transfer->status;
+     UVC_DEBUG("not retrying transfer, status = %d", transfer->status);
+     pthread_mutex_lock(&strmh->cb_mutex);
+ 
+@@ -857,6 +859,7 @@ uvc_error_t uvc_stream_start(
+   strmh->fid = 0;
+   strmh->pts = 0;
+   strmh->last_scr = 0;
++  strmh->transfer_status = LIBUSB_TRANSFER_COMPLETED;
+ 
+   frame_desc = uvc_find_frame_desc_stream(strmh, ctrl->bFormatIndex, ctrl->bFrameIndex);
+   if (!frame_desc) {
+@@ -1125,6 +1128,8 @@ uvc_error_t uvc_stream_get_frame(uvc_stream_handle_t *strmh,
+   struct timespec ts;
+   struct timeval tv;
+ 
++  uvc_error_t ret = UVC_SUCCESS;
++
+   if (!strmh->running)
+     return UVC_ERROR_INVALID_PARAM;
+ 
+@@ -1176,15 +1181,23 @@ uvc_error_t uvc_stream_get_frame(uvc_stream_handle_t *strmh,
+           return UVC_ERROR_OTHER;
+       case ETIMEDOUT:
+           *frame = NULL;
++          if (strmh->transfer_status == LIBUSB_TRANSFER_NO_DEVICE) {
++              UVC_DEBUG("no device - broken");
++              return UVC_ERROR_NO_DEVICE;
++          }
+           return UVC_ERROR_TIMEOUT;
+       }
+     }
+-    
+-    if (strmh->last_polled_seq < strmh->hold_seq) {
++    if (strmh->transfer_status == LIBUSB_TRANSFER_NO_DEVICE) {
++      UVC_DEBUG("no device - broken");
++      ret = UVC_ERROR_NO_DEVICE;
++      *frame = NULL;
++    } else if (strmh->last_polled_seq < strmh->hold_seq) {
+       _uvc_populate_frame(strmh);
+       *frame = &strmh->frame;
+       strmh->last_polled_seq = strmh->hold_seq;
+     } else {
++      ret = UVC_ERROR_TIMEOUT;
+       *frame = NULL;
+     }
+   } else {
+@@ -1193,7 +1206,7 @@ uvc_error_t uvc_stream_get_frame(uvc_stream_handle_t *strmh,
+ 
+   pthread_mutex_unlock(&strmh->cb_mutex);
+ 
+-  return UVC_SUCCESS;
++  return ret;
+ }
+ 
+ /** @brief Stop streaming video
+@@ -1221,6 +1234,7 @@ void uvc_stop_streaming(uvc_device_handle_t *devh) {
+ uvc_error_t uvc_stream_stop(uvc_stream_handle_t *strmh) {
+   int i;
+ 
++  UVC_ENTER();
+   if (!strmh->running)
+     return UVC_ERROR_INVALID_PARAM;
+ 
+@@ -1233,7 +1247,7 @@ uvc_error_t uvc_stream_stop(uvc_stream_handle_t *strmh) {
+       int res = libusb_cancel_transfer(strmh->transfers[i]);
+       if(res < 0 && res != LIBUSB_ERROR_NOT_FOUND ) {
+         free(strmh->transfers[i]->buffer);
+-        libusb_free_transfer(strmh->transfers[i]);
++        /* transfers are freed in callback */
+         strmh->transfers[i] = NULL;
+       }
+     }
+@@ -1261,7 +1275,7 @@ uvc_error_t uvc_stream_stop(uvc_stream_handle_t *strmh) {
+     pthread_join(strmh->cb_thread, NULL);
+   }
+ 
+-  return UVC_SUCCESS;
++  UVC_EXIT(UVC_SUCCESS);
+ }
+ 
+ /** @brief Close stream.

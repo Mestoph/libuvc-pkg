@@ -6,7 +6,7 @@ License:        BSD-2-clause
 URL:            https://github.com/ktossell/libuvc
 Prefix:         %{_prefix}
 Provides:       libuvc = %{version}-%{release}
-Obsoletes:      libuvc <= 0.0.6-1
+Obsoletes:      libuvc <= 0.0.6-2
 Requires:       libusbx
 BuildRequires:  gcc
 BuildRequires:  libusbx-devel
@@ -14,6 +14,7 @@ BuildRequires:  cmake
 BuildRequires:  gcc-c++
 BuildRequires:  libstdc++-devel
 Source:         libuvc-%{version}.tar.gz
+Patch0:					libuvc.patch
 
 %description
 libuvc is a user-space driver library for UVC cameras.  It also supports
@@ -25,7 +26,7 @@ Summary:        Development files for %{name}
 Group:          Development/Libraries
 Requires:       %{name}%{?_isa} = %{version}-%{release}
 Provides:       libuvc-devel = %{version}-%{release}
-Obsoletes:      libuvc-devel <= 0.0.5
+Obsoletes:      libuvc-devel <= 0.0.6-1
 
 %description    devel
 The %{name}-devel package contains libraries and header files for
@@ -33,6 +34,7 @@ developing applications that use %{name}.
 
 %prep
 %setup -q
+%patch0 -p0
 
 %build
 %cmake . -DCMAKE_INSTALL_LIBDIR=/usr/lib64

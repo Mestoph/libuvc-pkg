@@ -24,7 +24,7 @@ case $debversion in
 esac
 echo $compatversion > debfiles/compat
 
-tar zxf libuvc-$version.tar.gz
+tar zxf ../libuvc-$version.tar.gz
 cd $srcdir
 YFLAG=-y
 dh_make -v | fgrep -q '1998-2011'
@@ -32,7 +32,7 @@ if [ $? -eq 0 ]
 then
   YFLAG=''
 fi
-dh_make $YFLAG -l -f ../libuvc-$version.tar.gz
+dh_make $YFLAG -l -f ../../libuvc-$version.tar.gz
 
 sed -e "s/@@COMPAT@@/$compatversion/" < ../debfiles/control > $debdir/control
 cp ../debfiles/copyright $debdir
