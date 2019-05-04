@@ -131,12 +131,11 @@ index edb5e38..c1df171 100644
          strmh->transfers[i] = NULL;
        }
      }
-@@ -1261,7 +1275,7 @@ uvc_error_t uvc_stream_stop(uvc_stream_handle_t *strmh) {
+@@ -1261,6 +1275,7 @@ uvc_error_t uvc_stream_stop(uvc_stream_handle_t *strmh) {
      pthread_join(strmh->cb_thread, NULL);
    }
  
--  return UVC_SUCCESS;
 +  UVC_EXIT(UVC_SUCCESS);
+   return UVC_SUCCESS;
  }
  
- /** @brief Close stream.
