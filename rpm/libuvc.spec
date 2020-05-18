@@ -34,7 +34,7 @@ developing applications that use %{name}.
 
 %prep
 %setup -q
-%patch0 -p0
+%patch0 -p1
 
 %build
 %cmake . -DCMAKE_INSTALL_LIBDIR=/usr/lib64
