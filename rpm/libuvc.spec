@@ -11,6 +11,7 @@ Requires:       libusbx
 BuildRequires:  gcc
 BuildRequires:  libusbx-devel
 BuildRequires:  cmake
+BuildRequires:  make
 BuildRequires:  gcc-c++
 BuildRequires:  libstdc++-devel
 Source:         libuvc-%{version}.tar.gz
